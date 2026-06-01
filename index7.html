@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 7 — Knowledge Assessment | MITRE ATT&CK with Illumio Insights</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1f2937;
+  --border: #30363d;
+  --accent: #f97316;
+  --accent2: #3b82f6;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --purple: #a855f7;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --card: #1c2128;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ===== INTRO ===== */
+#screen-intro{
+  background: radial-gradient(ellipse at 25% 35%, #1a0800 0%, #0d1117 55%),
+              radial-gradient(ellipse at 80% 70%, #060d1a 0%, transparent 55%);
+  align-items:center;justify-content:center;padding:40px 20px;
+}
+.intro-wrap{max-width:800px;text-align:center;}
+.intro-badge{display:inline-block;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.35);color:var(--accent);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin-bottom:24px;}
+.intro-wrap h1{font-size:clamp(26px,5vw,46px);font-weight:800;line-height:1.15;margin-bottom:14px;}
+.intro-wrap h1 span{color:var(--accent);}
+.intro-sub{font-size:17px;color:var(--muted);line-height:1.7;max-width:600px;margin:0 auto 28px;}
+.source-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-align:left;margin-bottom:28px;}
+.source-card h3{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+.source-item{background:var(--surface2);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--muted);line-height:1.5;}
+.source-item strong{color:var(--text);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.stat-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 20px;text-align:center;min-width:110px;}
+.stat-card .val{font-size:24px;font-weight:800;color:var(--accent);}
+.stat-card .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.btn-start{background:var(--accent);color:#000;border:none;border-radius:10px;padding:15px 40px;font-size:18px;font-weight:800;cursor:pointer;transition:all .2s;}
+.btn-start:hover{background:#fb923c;transform:translateY(-1px);box-shadow:0 8px 24px rgba(249,115,22,.35);}
+
+/* ===== GAME ===== */
+#screen-game{flex-direction:row;min-height:100vh;}
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-logo{padding:0 18px 16px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.sidebar-logo .lab-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.sidebar-logo .lab-title{font-size:14px;font-weight:700;color:var(--text);margin-top:2px;}
+.section-track{flex:1;padding:0 10px;}
+.track-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:4px;transition:background .15s;}
+.track-item:hover{background:var(--surface2);}
+.track-item.active{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);}
+.track-item.completed{opacity:.8;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-1{background:#f97316;}
+.dot-2{background:#3b82f6;}
+.dot-3{background:#22c55e;}
+.dot-4{background:#eab308;}
+.dot-5{background:#a855f7;}
+.dot-6{background:#ef4444;}
+.track-label{font-size:12px;color:var(--muted);line-height:1.3;flex:1;}
+.track-item.active .track-label{color:var(--text);}
+.track-check{font-size:14px;color:var(--green);}
+.score-box{margin:16px 10px 0;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.score-box .score-val{font-size:28px;font-weight:800;color:var(--accent);}
+.score-box .score-max{font-size:13px;color:var(--muted);}
+.score-box .score-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:2px;}
+.progress-bar-wrap{height:4px;background:var(--border);border-radius:2px;margin:10px 10px 0;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s;}
+
+/* MAIN */
+.main-content{flex:1;padding:36px 40px;overflow-y:auto;max-width:900px;}
+.section-header{margin-bottom:26px;}
+.section-header .section-num{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.section-header h2{font-size:22px;font-weight:800;line-height:1.3;}
+
+/* DATA CARD */
+.data-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--accent2);border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:15px;line-height:1.75;color:var(--muted);}
+.data-card strong{color:var(--text);}
+.data-card .data-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;}
+
+/* STAT HIGHLIGHT */
+.stat-highlight{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+.stat-hl{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;flex:1;min-width:120px;text-align:center;}
+.stat-hl .sh-val{font-size:28px;font-weight:800;color:var(--accent);line-height:1.1;}
+.stat-hl .sh-lbl{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+
+/* MCQ */
+.question-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;}
+.question-block .q-num{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.question-block .q-text{font-size:16px;font-weight:600;line-height:1.55;margin-bottom:14px;}
+.options{display:flex;flex-direction:column;gap:8px;}
+.option-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;text-align:left;font-size:15px;color:var(--text);cursor:pointer;transition:all .15s;line-height:1.5;}
+.option-btn:hover:not(:disabled){background:var(--surface);border-color:var(--accent2);}
+.option-btn.correct{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green);}
+.option-btn.wrong{background:rgba(239,68,68,.1);border-color:var(--red);color:var(--red);}
+.option-btn:disabled{cursor:default;}
+.feedback-box{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:15px;line-height:1.6;display:none;}
+.feedback-box.show{display:block;}
+.feedback-box.correct{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:var(--green);}
+.feedback-box.wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:var(--red);}
+.feedback-box.neutral{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);color:#93c5fd;}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:12px;}
+.data-table th{background:var(--accent);color:#000;font-weight:700;padding:8px 12px;text-align:left;}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted);}
+.data-table tr:nth-child(even) td{background:rgba(249,115,22,.04);}
+.data-table .highlight{color:var(--accent);font-weight:700;}
+
+/* MULTISELECT */
+.multiselect-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;}
+.multiselect-block .q-num{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.multiselect-block .q-text{font-size:16px;font-weight:600;line-height:1.55;margin-bottom:6px;}
+.multiselect-block .q-hint{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.checkbox-option{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:border-color .15s;}
+.checkbox-option:hover{border-color:var(--accent2);}
+.checkbox-option input[type=checkbox]{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--accent2);cursor:pointer;}
+.checkbox-option label{font-size:15px;color:var(--text);line-height:1.5;cursor:pointer;flex:1;}
+.checkbox-option.cb-correct{background:rgba(34,197,94,.08);border-color:var(--green);}
+.checkbox-option.cb-correct label{color:var(--green);}
+.checkbox-option.cb-wrong{background:rgba(239,68,68,.08);border-color:var(--red);}
+.checkbox-option.cb-wrong label{color:var(--red);}
+.submit-btn{background:var(--accent2);border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;margin-top:4px;transition:background .15s;}
+.submit-btn:hover{background:#2563eb;}
+.submit-btn:disabled{background:var(--border);color:var(--muted);cursor:default;}
+
+/* MATCHING */
+.matching-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;}
+.matching-block .q-num{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.matching-block h3{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.matching-block .m-hint{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.matching-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.matching-col-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.term-chip{background:var(--surface2);border:2px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);cursor:pointer;margin-bottom:7px;line-height:1.4;transition:all .15s;user-select:none;}
+.term-chip:hover{border-color:var(--accent2);}
+.term-chip.selected{border-color:var(--accent);background:rgba(249,115,22,.1);color:var(--accent);}
+.term-chip.used{opacity:.4;cursor:default;pointer-events:none;}
+.term-chip.matched-correct{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green);cursor:default;}
+.term-chip.matched-wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red);cursor:default;}
+.slot{background:var(--surface2);border:2px dashed var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--muted);margin-bottom:7px;min-height:42px;line-height:1.4;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;justify-content:center;}
+.slot:hover{border-color:var(--accent2);}
+.slot.filled{border-style:solid;border-color:var(--accent2);color:var(--text);}
+.slot.slot-correct{border-color:var(--green);background:rgba(34,197,94,.08);}
+.slot.slot-wrong{border-color:var(--red);background:rgba(239,68,68,.08);}
+.slot-def{font-size:10px;color:var(--muted);margin-bottom:3px;}
+
+/* DISCUSSION */
+.discussion-block{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:18px;}
+.discussion-block .disc-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);background:rgba(234,179,8,.1);padding:3px 10px;border-radius:12px;display:inline-block;margin-bottom:10px;}
+.discussion-block .disc-q{font-size:16px;font-weight:600;line-height:1.6;margin-bottom:12px;color:var(--text);}
+.expert-toggle{background:none;border:1px solid var(--border);border-radius:7px;padding:8px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;}
+.expert-toggle:hover{border-color:var(--accent2);color:var(--text);}
+.expert-answer{margin-top:12px;padding:14px 16px;background:var(--card);border-radius:8px;font-size:15px;color:var(--muted);line-height:1.75;display:none;}
+.expert-answer.show{display:block;}
+.expert-answer strong{color:var(--text);}
+
+/* SELF-ASSESS */
+.self-assess-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;}
+.self-assess-block .q-num{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.self-assess-block h3{font-size:14px;font-weight:700;margin-bottom:4px;}
+.self-assess-block .sa-hint{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.sa-item{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.sa-item:last-of-type{border-bottom:none;}
+.sa-item input[type=checkbox]{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--green);cursor:pointer;}
+.sa-item label{font-size:15px;color:var(--text);line-height:1.5;cursor:pointer;}
+
+/* NAV */
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:28px;padding-top:22px;border-top:1px solid var(--border);}
+.nav-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s;}
+.nav-btn:hover:not(:disabled){background:var(--surface);border-color:var(--accent);}
+.nav-btn:disabled{opacity:.35;cursor:default;}
+.nav-btn.primary{background:var(--accent);border-color:var(--accent);color:#000;}
+.nav-btn.primary:hover:not(:disabled){background:#fb923c;}
+.nav-section{font-size:12px;color:var(--muted);}
+
+/* POINTS POPUP */
+#points-popup{position:fixed;top:22px;right:22px;background:var(--green);color:#000;font-weight:800;font-size:18px;padding:12px 22px;border-radius:12px;z-index:1000;opacity:0;transform:translateY(-14px) scale(.95);transition:all .3s;pointer-events:none;}
+#points-popup.show{opacity:1;transform:translateY(0) scale(1);}
+
+/* RESULTS */
+#screen-results{align-items:center;justify-content:center;padding:48px 24px;flex-direction:column;}
+.results-wrap{max-width:700px;width:100%;text-align:center;}
+.grade-badge{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:8px 20px;border-radius:20px;display:inline-block;margin-bottom:18px;}
+.grade-a{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.grade-b{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3);}
+.grade-c{background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.3);}
+.grade-d{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+.results-score-big{font-size:72px;font-weight:900;color:var(--accent);line-height:1;}
+.results-max{font-size:20px;color:var(--muted);margin-bottom:8px;}
+.results-title{font-size:22px;font-weight:800;margin-bottom:8px;}
+.results-sub{font-size:16px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.results-breakdown{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;text-align:left;margin-bottom:24px;}
+.results-breakdown h3{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:15px;}
+.breakdown-row:last-child{border-bottom:none;}
+.breakdown-row .pts{font-weight:700;color:var(--accent);}
+.key-lessons{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;text-align:left;margin-bottom:24px;}
+.key-lessons h3{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.lesson-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:15px;line-height:1.55;color:var(--muted);}
+.lesson-item:last-child{border-bottom:none;}
+.lesson-item::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px;}
+.btn-restart{background:var(--accent);color:#000;border:none;border-radius:10px;padding:14px 36px;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;}
+.btn-restart:hover{background:#fb923c;}
+
+@media(max-width:700px){
+  #screen-game{flex-direction:column;}
+  .sidebar{width:100%;min-width:0;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:12px;border-right:none;border-bottom:1px solid var(--border);}
+  .sidebar-logo{padding:0;border:none;margin:0;flex:0 0 100%;margin-bottom:8px;}
+  .section-track{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:4px;padding:0;}
+  .track-item{flex:0 0 calc(33% - 4px);font-size:11px;padding:6px 8px;}
+  .score-box{flex:0 0 auto;margin:0;}
+  .progress-bar-wrap{display:none;}
+  .main-content{padding:20px 16px;}
+  .matching-cols{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="points-popup">+<span id="popup-pts">10</span> pts</div>
+
+<!-- ========== INTRO ========== -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-wrap">
+    <div class="intro-badge">MITRE ATT&CK Course &bull; Module 7 of 7</div>
+    <h1>Module 7:<br><span>Knowledge Assessment</span></h1>
+    <p class="intro-sub">Test your understanding of the ATT&CK framework, Illumio Insights detection mapping, threat actor profiles, and the incident response workflow.</p>
+
+    <div class="source-card">
+      <h3>Assessment at a Glance</h3>
+      <div class="source-grid">
+        <div class="source-item"><strong>Modules Covered</strong>1–6 (5 core + 1 optional)</div>
+        <div class="source-item"><strong>Core Tactics</strong>TA0008 · TA0010 · TA0011</div>
+        <div class="source-item"><strong>Product</strong>Illumio Insights — AI CDR</div>
+        <div class="source-item"><strong>Sections</strong>6 (Framework → Synthesis)</div>
+        <div class="source-item"><strong>Question Types</strong>MCQ · Multi-Select · Matching</div>
+        <div class="source-item"><strong>Audience</strong>SOC analysts · Threat hunters · IR practitioners</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="val">14</div><div class="lbl">ATT&CK Tactics</div></div>
+      <div class="stat-card"><div class="val">4</div><div class="lbl">APT Groups</div></div>
+      <div class="stat-card"><div class="val">9</div><div class="lbl">Insights Views</div></div>
+      <div class="stat-card"><div class="val">200</div><div class="lbl">Points Available</div></div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Begin Assessment &rarr;</button>
+  </div>
+</div>
+
+<!-- ========== GAME ========== -->
+<div id="screen-game" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="lab-label">Module 7</div>
+      <div class="lab-title">Knowledge Assessment</div>
+    </div>
+    <div class="section-track" id="section-track">
+      <div class="track-item active" onclick="goToSection(0)" id="track-0"><div class="dot dot-1"></div><div class="track-label">ATT&CK Framework</div><span class="track-check" id="check-0"></span></div>
+      <div class="track-item" onclick="goToSection(1)" id="track-1"><div class="dot dot-2"></div><div class="track-label">Attack Path</div><span class="track-check" id="check-1"></span></div>
+      <div class="track-item" onclick="goToSection(2)" id="track-2"><div class="dot dot-3"></div><div class="track-label">Exfil &amp; C2</div><span class="track-check" id="check-2"></span></div>
+      <div class="track-item" onclick="goToSection(3)" id="track-3"><div class="dot dot-4"></div><div class="track-label">Threat Actors</div><span class="track-check" id="check-3"></span></div>
+      <div class="track-item" onclick="goToSection(4)" id="track-4"><div class="dot dot-5"></div><div class="track-label">Incident Response</div><span class="track-check" id="check-4"></span></div>
+      <div class="track-item" onclick="goToSection(5)" id="track-5"><div class="dot dot-6"></div><div class="track-label">Course Synthesis</div><span class="track-check" id="check-5"></span></div>
+    </div>
+    <div class="score-box">
+      <div class="score-val" id="sidebar-score">0</div>
+      <div class="score-max">/ 200 pts</div>
+      <div class="score-lbl">Score</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="main-content" id="main-content"></div>
+</div>
+
+<!-- ========== RESULTS ========== -->
+<div id="screen-results" class="screen">
+  <div class="results-wrap">
+    <div id="grade-badge" class="grade-badge grade-a">ATT&CK Analyst</div>
+    <div class="results-score-big" id="final-score">0</div>
+    <div class="results-max">/ 200 pts</div>
+    <div class="results-title" id="results-title">ATT&CK Analyst</div>
+    <div class="results-sub" id="results-sub">You speak the framework fluently.</div>
+    <div class="results-breakdown">
+      <h3>Score Breakdown</h3>
+      <div class="breakdown-row"><span>12 MCQs (10 pts each)</span><span class="pts" id="br-mcq">0 / 120</span></div>
+      <div class="breakdown-row"><span>Matching — ATT&CK Tactic ID Map (Section 1)</span><span class="pts" id="br-m1">0 / 20</span></div>
+      <div class="breakdown-row"><span>Multi-Select — T1021 Sub-Techniques (Section 2)</span><span class="pts" id="br-ms">0 / 20</span></div>
+      <div class="breakdown-row"><span>Matching — Illumio Insights to ATT&CK (Section 3)</span><span class="pts" id="br-m2">0 / 20</span></div>
+      <div class="breakdown-row"><span>Course Knowledge Self-Assessment Bonus (Section 6)</span><span class="pts" id="br-sa">0 / 20</span></div>
+    </div>
+    <div class="key-lessons">
+      <h3>Key Concepts to Remember</h3>
+      <div class="lesson-item">Lateral Movement (TA0008) is the universal chokepoint — blast radius is determined by how far an attacker moves before detection. Illumio Insights is strongest here.</div>
+      <div class="lesson-item">Risky Services Traffic → TA0008, External Data Transfer → TA0010, Malicious IP Traffic → TA0011. These three views are the core Insights detection layer.</div>
+      <div class="lesson-item">T1021.002 (SMB, port 445) was the lateral movement mechanism for WannaCry and NotPetya via EternalBlue (MS17-010). It remains actively exploited today.</div>
+      <div class="lesson-item">Illumio Insights operates primarily at the IOA level — detecting behavioral anomalies, not just known-bad signatures. This means it can surface novel attacks that haven't been seen before.</div>
+      <div class="lesson-item">Nation-state APTs — APT28 (Russia/GRU), APT41 (China), APT39 (Iran/IRGC), Lazarus Group (DPRK) — all use Lateral Movement extensively in documented campaigns.</div>
+    </div>
+    <button class="btn-restart" onclick="restart()">Restart Assessment &rarr;</button>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let score = 0;
+let currentSection = 0;
+let sectionAttempted = [false,false,false,false,false,false];
+let scoreLog = {mcq:0, m1:0, ms:0, m2:0, sa:0};
+let mcqAnswered = {};
+let msSubmitted = false;
+let matching1 = {submitted:false};
+let matching2 = {submitted:false};
+let saSubmitted = false;
+
+const sectionMCQs = {
+  0: ['s0q1','s0q2'],
+  1: ['s1q1','s1q2'],
+  2: ['s2q1','s2q2'],
+  3: ['s3q1','s3q2'],
+  4: ['s4q1','s4q2'],
+  5: ['s5q1','s5q2'],
+};
+
+// ===== FEEDBACKS =====
+window.feedbacks = {
+  s0q1: "In the ATT&CK framework, a Tactic is the adversary's goal — the <em>why</em>. A Technique is how they achieve it — the <em>how</em>. A Procedure is the specific documented execution — the <em>exactly what</em> in a real-world incident. The same Tactic (e.g. Lateral Movement) can be achieved through many Techniques. A Sub-Technique adds further specificity — T1021.001 (RDP) tells you exactly which port to block.",
+  s0q2: "Illumio Insights adds the most detection value in the middle and later stages of the kill chain — specifically Lateral Movement (TA0008), Exfiltration (TA0010), and Command and Control (TA0011). The early-stage Tactics (Reconnaissance through Defense Evasion) happen primarily at the endpoint and email layer, where EDR and email security tools are the primary defense. Illumio operates at the network layer, which becomes decisive once the attacker starts moving.",
+  s1q1: "T1021.002 (SMB/Windows Admin Shares) uses port 445. Both WannaCry (2017) and NotPetya (2017) used SMB as their lateral movement mechanism via the EternalBlue exploit (MS17-010), resulting in an estimated $4–8 billion in combined losses. Port 3389 is RDP (T1021.001), port 22 is SSH (T1021.004), and port 5985 is WinRM (T1021.006).",
+  s1q2: "A workload labelled Database initiating RDP connections is anomalous because database servers receive connections — they do not originate them. A compromised database host making outbound RDP attempts is a textbook pivot point, a strong indicator of TA0008 in progress. By contrast, a Jump-Host initiating RDP to a Web-Server is administratively expected behavior. Label Insights provides the workload context that makes the difference between an obvious anomaly and an expected flow.",
+  s2q1: "For T1567.002 (Exfiltration to Cloud Storage), the destination — HTTPS to S3 or Google Drive — is not the detection signal because it is legitimate traffic from many workloads. The signal is the source workload's behavior relative to its baseline. A database server that has never previously made outbound HTTPS connections to S3 suddenly doing so at high volume is the anomaly that External Data Transfer surfaces.",
+  s2q2: "Firewall Insights requires integration with a supported firewall vendor before data appears — AWS Network Firewall, Azure Firewall, Check Point, Fortinet, or Palo Alto Networks. It maps to T1008 (Fallback Channels) because a rising delta in one protocol followed by that protocol going quiet while another rises is exactly what an attacker cycling through protocols looks like at the firewall layer. The other Insights views do not require third-party firewall integrations.",
+  s3q1: "APT28 (also known as Fancy Bear) is attributed to Russia's GRU (military intelligence). APT28 is responsible for major incidents including the 2016 DNC intrusion and the 2015 German Bundestag hack. APT41 is attributed to China. APT39 is attributed to Iran's IRGC. Lazarus Group is attributed to North Korea's Reconnaissance General Bureau (RGB). Country Insights and cross-referencing MITRE ATT&CK group pages are how you contextualise these attributions in a live investigation.",
+  s3q2: "APT41 is unique among documented nation-state APT groups in conducting both state-sponsored espionage (on behalf of China) and financially motivated cybercrime for personal gain. Most nation-state groups are directed exclusively by government objectives. APT41's dual mission makes it one of the most prolific and versatile documented actors — its TTPs span both intelligence-gathering operations and direct financial theft, including targeting healthcare and pharmaceutical sectors during COVID-19 vaccine research.",
+  s4q1: "Within a single Threat Hunter investigation, individual Findings are rated independently based on severity. A Critical Finding means that specific behavior warrants immediate response. A Low Finding provides informational context — relevant background that does not require urgent action on its own. The spread tells you where to focus: a Critical Finding for TA0011 (C2) alongside a Low Finding for TA0007 (Discovery) means the attacker is already communicating out, not just looking around.",
+  s4q2: "In AWS, Illumio enforces quarantine by writing rules to the Security Group attached to the workload. Because Security Groups in AWS can be shared across multiple instances, quarantining one workload that shares its SG will affect all workloads using that same Security Group — not just the one you targeted. Azure uses NIC-level NSGs (not Security Groups); GCP uses VPC Firewall rules. VEN-based quarantine writes policy directly to the host rather than through the cloud provider's controls.",
+  s5q1: "Illumio Insights primarily operates at the IOA (Indicators of Attack) level — detecting behavioral anomalies such as unexpected lateral movement traffic, unusual outbound volumes, and anomalous connection patterns. IOC-based detection (matching known-bad IPs and hashes) is present in Malicious IP Traffic, but the core capability is behavioral. This means Insights can surface novel attacks that have never been seen before — not just repeat of documented adversary signatures.",
+  s5q2: "Lateral Movement (TA0008) is the universal chokepoint because it is where blast radius is determined. An attacker contained to one host can execute T1486 (ransomware encryption) on one host. One who moves laterally undetected can encrypt every host they reached. This is why WannaCry and NotPetya caused enterprise-wide damage rather than single-system impact. It is also where Illumio Insights and Segmentation are most decisive — Risky Services Traffic surfaces the movement; enforced policy (M1030, M1035) stops it.",
+};
+
+// ===== CORE FUNCTIONS =====
+function showPopup(pts) {
+  const el = document.getElementById('points-popup');
+  document.getElementById('popup-pts').textContent = pts;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+function addScore(pts, cat) {
+  score += pts;
+  scoreLog[cat] = (scoreLog[cat]||0) + pts;
+  document.getElementById('sidebar-score').textContent = score;
+  document.getElementById('progress-fill').style.width = Math.min(100,score/2)+'%';
+  if(pts>0) showPopup(pts);
+}
+function startGame() {
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  renderSection(0);
+}
+function goToSection(idx) {
+  currentSection = idx;
+  document.querySelectorAll('.track-item').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  renderSection(idx);
+  document.getElementById('main-content').scrollTop = 0;
+  window.scrollTo(0,0);
+}
+function nextSection() {
+  if(currentSection < 5) goToSection(currentSection+1);
+  else showResults();
+}
+function prevSection() { if(currentSection>0) goToSection(currentSection-1); }
+function markDone() {
+  sectionAttempted[currentSection] = true;
+  document.getElementById('check-'+currentSection).textContent = '✓';
+  document.getElementById('track-'+currentSection).classList.add('completed');
+  const btn = document.getElementById('btn-next');
+  if(btn) btn.disabled = false;
+}
+function checkProgress() {
+  const ids = sectionMCQs[currentSection];
+  const allMCQ = ids ? ids.every(id => mcqAnswered[id]) : true;
+  if(currentSection===0 && allMCQ && matching1.submitted) markDone();
+  else if(currentSection===1 && allMCQ && msSubmitted) markDone();
+  else if(currentSection===2 && allMCQ && matching2.submitted) markDone();
+  else if(currentSection===5 && allMCQ && saSubmitted) markDone();
+  else if([3,4].includes(currentSection) && allMCQ) markDone();
+}
+function renderSection(idx) {
+  const secs = [sec0,sec1,sec2,sec3,sec4,sec5];
+  document.getElementById('main-content').innerHTML = secs[idx]();
+  const btn = document.getElementById('btn-next');
+  if(btn) btn.disabled = !sectionAttempted[idx];
+}
+function navHTML(label) {
+  return `<div class="nav-row">
+    <button class="nav-btn" onclick="prevSection()" ${currentSection===0?'disabled':''}>&#8592; Back</button>
+    <span class="nav-section">${label}</span>
+    <button class="nav-btn primary" id="btn-next" onclick="nextSection()" ${sectionAttempted[currentSection]?'':'disabled'}>${currentSection===5?'View Results':'Next &rarr;'}</button>
+  </div>`;
+}
+function mcqHTML(id, qnum, question, options, correctIdx) {
+  return `<div class="question-block" id="qblock-${id}">
+    <div class="q-num">Question ${qnum} &mdash; 10 pts</div>
+    <div class="q-text">${question}</div>
+    <div class="options" id="opts-${id}">
+      ${options.map((o,i)=>`<button class="option-btn" onclick="answerMCQ('${id}',${i},${correctIdx})">${String.fromCharCode(65+i)}) ${o}</button>`).join('')}
+    </div>
+    <div class="feedback-box" id="fb-${id}"></div>
+  </div>`;
+}
+function answerMCQ(id, chosen, correct) {
+  if(mcqAnswered[id]) return;
+  mcqAnswered[id] = true;
+  const opts = document.querySelectorAll(`#opts-${id} .option-btn`);
+  const fb = document.getElementById(`fb-${id}`);
+  opts.forEach((b,i)=>{ b.disabled=true; if(i===correct) b.classList.add('correct'); else if(i===chosen) b.classList.add('wrong'); });
+  const isRight = chosen===correct;
+  fb.className = 'feedback-box show '+(isRight?'correct':'wrong');
+  fb.innerHTML = (isRight?'<strong>Correct.</strong> ':'<strong>Incorrect.</strong> ')+(window.feedbacks[id]||'');
+  if(isRight) addScore(10,'mcq');
+  checkProgress();
+}
+function discussHTML(q, expert) {
+  const uid = 'disc'+Math.random().toString(36).slice(2,8);
+  return `<div class="discussion-block">
+    <span class="disc-tag">Discussion Prompt</span>
+    <div class="disc-q">${q}</div>
+    <button class="expert-toggle" onclick="toggleExpert('${uid}')">Show Expert Perspective</button>
+    <div class="expert-answer" id="${uid}">${expert}</div>
+  </div>`;
+}
+function toggleExpert(id) { document.getElementById(id).classList.toggle('show'); }
+
+// ===== SECTION 0: ATT&CK FRAMEWORK =====
+function sec0() {
+  const m1terms = ['TA0001 — Initial Access','TA0008 — Lateral Movement','TA0010 — Exfiltration','TA0011 — Command and Control'];
+  const m1slots = ['Maintaining communication with the compromised environment','Getting the first foothold in the target environment','Moving from host to host within the network','Sending data out of the environment'];
+  // slot 0 → TA0011 (chip 3), slot 1 → TA0001 (chip 0), slot 2 → TA0008 (chip 1), slot 3 → TA0010 (chip 2)
+  const m1correctChip = [3, 0, 1, 2];
+  window._m1terms = m1terms;
+  window._m1slots = m1slots;
+  window._m1correctChip = m1correctChip;
+  return `<div class="section-header">
+    <div class="section-num">Section 1 of 6 &mdash; ATT&CK Framework</div>
+    <h2>The MITRE ATT&CK Framework</h2>
+  </div>
+  <div class="data-card">
+    <div class="data-label">Framework At a Glance</div>
+    <strong>14 Tactics</strong> — the adversary's goals, from Reconnaissance (TA0043) through Impact (TA0040)<br>
+    <strong>200+ Techniques</strong> — how each goal is achieved, many with Sub-Techniques for additional specificity<br>
+    <strong>Procedure Examples</strong> — real documented cases from known threat actors, linked directly from each Technique page<br>
+    <strong>Illumio Insights</strong> — surfaces ATT&CK Tactic labels on every alert, so classification is automatic and consistent
+  </div>
+  ${mcqHTML('s0q1','1','In the MITRE ATT&CK framework, what is the relationship between a Tactic and a Technique?',[
+    'A Technique is the strategic goal; a Tactic is the step-by-step execution used to achieve it',
+    'Tactics and Techniques are interchangeable — they describe the same concept at different levels of detail',
+    'A Tactic is the goal the attacker is trying to achieve; a Technique is the specific method they use to achieve that goal',
+    'A Procedure is the goal; a Tactic is the execution; a Technique links them together',
+  ],2)}
+  ${mcqHTML('s0q2','2','Illumio Insights adds detection and containment value across the ATT&CK kill chain. For which stage does it add the strongest value?',[
+    'Reconnaissance (TA0043) and Resource Development (TA0042) — the pre-attack preparation phase',
+    'Initial Access (TA0001) through Defense Evasion (TA0005) — where the attacker first enters the environment',
+    'Lateral Movement (TA0008) through Command and Control (TA0011) — the middle and later stages of the kill chain',
+    'Impact (TA0040) — the final stage where data is encrypted or destroyed',
+  ],2)}
+  <div class="matching-block" id="matching1-block">
+    <div class="q-num">Matching &mdash; ATT&CK Tactic IDs &mdash; 20 pts</div>
+    <h3>Match each Tactic ID to what the attacker is doing at that stage.</h3>
+    <div class="m-hint">Click a Tactic ID on the left, then click the matching description on the right.</div>
+    <div class="matching-cols">
+      <div>
+        <div class="matching-col-label">Tactic ID</div>
+        ${m1terms.map((t,i)=>`<div class="term-chip" id="m1t-${i}" onclick="selectM1(${i})">${t}</div>`).join('')}
+      </div>
+      <div>
+        <div class="matching-col-label">What the attacker is doing</div>
+        ${m1slots.map((s,i)=>`<div class="slot" id="m1s-${i}" onclick="assignM1(${i})"><span class="slot-def">${s}</span></div>`).join('')}
+      </div>
+    </div>
+    <button class="submit-btn" id="m1-submit-btn" onclick="submitM1()">Submit Matching</button>
+    <div class="feedback-box" id="m1-feedback"></div>
+  </div>
+  ${navHTML('Section 1 of 6')}`;
+}
+
+// ===== SECTION 1: ATTACK PATH =====
+function sec1() {
+  return `<div class="section-header">
+    <div class="section-num">Section 2 of 6 &mdash; Attack Path</div>
+    <h2>Initial Access to Lateral Movement</h2>
+  </div>
+  <div class="data-card">
+    <div class="data-label">T1021 — Remote Services Sub-Techniques</div>
+    <table class="data-table">
+      <tr><th>Sub-Technique</th><th>Protocol</th><th>Default Port</th></tr>
+      <tr><td>T1021.001</td><td>Remote Desktop Protocol (RDP)</td><td class="highlight">3389</td></tr>
+      <tr><td>T1021.002</td><td>SMB / Windows Admin Shares</td><td class="highlight">445</td></tr>
+      <tr><td>T1021.003</td><td>DCOM</td><td class="highlight">135</td></tr>
+      <tr><td>T1021.004</td><td>SSH</td><td class="highlight">22</td></tr>
+      <tr><td>T1021.005</td><td>VNC</td><td class="highlight">5900</td></tr>
+      <tr><td>T1021.006</td><td>Windows Remote Management (WinRM)</td><td class="highlight">5985 / 5986</td></tr>
+    </table>
+  </div>
+  ${mcqHTML('s1q1','1','T1021.002 (SMB/Windows Admin Shares) is associated with two of the most destructive malware events in history. Which port does it use, and which events does it connect to?',[
+    'Port 22 — used by WannaCry and NotPetya via the EternalBlue exploit',
+    'Port 3389 — used by Lazarus Group and APT28 in targeted intrusions against government networks',
+    'Port 445 — used by WannaCry and NotPetya via the EternalBlue exploit (MS17-010)',
+    'Port 5985 — used by both ransomware families as their primary lateral movement channel',
+  ],2)}
+  ${mcqHTML('s1q2','2','In Illumio Insights, a workload\'s label is critical for interpreting Risky Services Traffic alerts. Which scenario represents the strongest lateral movement signal?',[
+    'An RDP connection from a workload labelled Jump-Host to a workload labelled Web-Server',
+    'An RDP connection originating from a workload labelled Database to a workload labelled Application-Server',
+    'An SMB connection from a workload labelled File-Server to another File-Server in the same zone',
+    'A WinRM connection from a workload labelled Build to a workload labelled Staging',
+  ],1)}
+  <div class="multiselect-block" id="ms-block">
+    <div class="q-num">Multi-Select &mdash; 20 pts</div>
+    <div class="q-text">Which of the following statements about T1021 (Remote Services) and its Sub-Techniques are correct?</div>
+    <div class="q-hint">Select all that apply, then submit.</div>
+    <div id="ms-options">
+      <label class="checkbox-option"><input type="checkbox" id="ms0"><label for="ms0">T1021.001 (Remote Desktop Protocol) uses port 3389</label></label>
+      <label class="checkbox-option"><input type="checkbox" id="ms1"><label for="ms1">T1021.002 (SMB/Windows Admin Shares) was the lateral movement mechanism used by both WannaCry and NotPetya via EternalBlue</label></label>
+      <label class="checkbox-option"><input type="checkbox" id="ms2"><label for="ms2">T1021.006 (Windows Remote Management) uses ports 5985 and 5986</label></label>
+      <label class="checkbox-option"><input type="checkbox" id="ms3"><label for="ms3">ATT&CK Mitigation M1035 (Limit Access to Resource Over Network) is documented as a mitigation for T1021.001 (RDP)</label></label>
+      <label class="checkbox-option"><input type="checkbox" id="ms4"><label for="ms4">T1021.005 (VNC) uses port 3389 — the same default port as Remote Desktop Protocol</label></label>
+      <label class="checkbox-option"><input type="checkbox" id="ms5"><label for="ms5">T1021 (Remote Services) is classified under the Discovery Tactic (TA0007)</label></label>
+    </div>
+    <button class="submit-btn" id="ms-submit-btn" onclick="submitMS()">Submit Answer</button>
+    <div class="feedback-box" id="ms-feedback"></div>
+  </div>
+  ${navHTML('Section 2 of 6')}`;
+}
+
+// ===== SECTION 2: EXFIL & C2 =====
+function sec2() {
+  const m2terms = ['Risky Services Traffic','External Data Transfer','Malicious IP Traffic','Firewall Insights'];
+  const m2slots = [
+    'TA0010 Exfiltration — workloads sending unusually large volumes of data outside your environment',
+    'TA0011 Command and Control — flows from workloads to known malicious IP addresses',
+    'TA0008 Lateral Movement — network flows using RDP (3389), SMB (445), and WinRM (5985/5986)',
+    'T1008 Fallback Channels — policy-layer view ingesting and analysing firewall log data from connected vendors',
+  ];
+  // slot 0 → External Data Transfer (chip 1), slot 1 → Malicious IP Traffic (chip 2), slot 2 → Risky Services Traffic (chip 0), slot 3 → Firewall Insights (chip 3)
+  const m2correctTerm = [1, 2, 0, 3];
+  window._m2terms = m2terms;
+  window._m2slots = m2slots;
+  window._m2correctTerm = m2correctTerm;
+  return `<div class="section-header">
+    <div class="section-num">Section 3 of 6 &mdash; Exfiltration &amp; C2</div>
+    <h2>Exfiltration, C2 &amp; Illumio Detection</h2>
+  </div>
+  <div class="data-card">
+    <div class="data-label">Illumio Insights — Later-Stage Detection Map</div>
+    The later-stage Tactics are where Illumio Insights adds the most detection value. Each Insights view is designed to surface a specific category of adversary behavior — connecting a raw network signal directly to an ATT&CK Tactic. Understanding which view maps to which Tactic is the foundation of the investigation workflow.
+  </div>
+  ${mcqHTML('s2q1','1','T1567.002 (Exfiltration to Cloud Storage) uses standard HTTPS to trusted domains like AWS S3. What is the primary detection signal Illumio Insights uses to surface this activity?',[
+    'Matching the destination IP against a threat intelligence feed of known cloud storage providers',
+    'Blocking all HTTPS traffic to cloud storage destinations by default and alerting on attempts',
+    'The identity and role of the source workload — a database server making its first-ever outbound HTTPS connection to S3 is anomalous regardless of the destination',
+    'The file extension of the data being transferred — compressed archives indicate staging before exfiltration',
+  ],2)}
+  ${mcqHTML('s2q2','2','Which Illumio Insights view requires integration with a supported third-party firewall before data will appear, and maps directly to ATT&CK Technique T1008 (Fallback Channels)?',[
+    'External Data Transfer — which requires a firewall to measure outbound data volumes',
+    'Malicious IP Traffic — which requires threat intelligence feed configuration',
+    'Country Insights — which requires regional IP geolocation data',
+    'Firewall Insights — which requires AWS Network Firewall, Azure Firewall, Check Point, Fortinet, or Palo Alto Networks',
+  ],3)}
+  <div class="matching-block" id="matching2-block">
+    <div class="q-num">Matching &mdash; Insights Views to ATT&CK &mdash; 20 pts</div>
+    <h3>Match each Illumio Insights view to the primary ATT&CK Tactic or Technique it detects.</h3>
+    <div class="m-hint">Click an Insights view on the left, then click the matching ATT&CK description on the right.</div>
+    <div class="matching-cols">
+      <div>
+        <div class="matching-col-label">Illumio Insights View</div>
+        ${m2terms.map((t,i)=>`<div class="term-chip" id="m2t-${i}" onclick="selectM2(${i})">${t}</div>`).join('')}
+      </div>
+      <div>
+        <div class="matching-col-label">ATT&CK Tactic / Technique</div>
+        ${m2slots.map((s,i)=>`<div class="slot" id="m2s-${i}" onclick="assignM2(${i})"><span class="slot-def">${s}</span></div>`).join('')}
+      </div>
+    </div>
+    <button class="submit-btn" id="m2-submit-btn" onclick="submitM2()">Submit Matching</button>
+    <div class="feedback-box" id="m2-feedback"></div>
+  </div>
+  ${navHTML('Section 3 of 6')}`;
+}
+
+// ===== SECTION 3: THREAT ACTORS =====
+function sec3() {
+  return `<div class="section-header">
+    <div class="section-num">Section 4 of 6 &mdash; Threat Actors</div>
+    <h2>Nation-State APT Groups</h2>
+  </div>
+  <div class="data-card">
+    <div class="data-label">APT Group Profiles — Module 4</div>
+    <table class="data-table">
+      <tr><th>Group</th><th>Nation-State</th><th>Primary Mission</th></tr>
+      <tr><td class="highlight">APT28 (Fancy Bear)</td><td>Russia — GRU</td><td>Government, military, election infrastructure</td></tr>
+      <tr><td class="highlight">APT41</td><td>China — MSS</td><td>Espionage + financial cybercrime (dual-mission)</td></tr>
+      <tr><td class="highlight">APT39</td><td>Iran — IRGC</td><td>Telecom, financial services, personal data</td></tr>
+      <tr><td class="highlight">Lazarus Group</td><td>North Korea — RGB</td><td>Financial theft, espionage, cryptocurrency</td></tr>
+    </table>
+  </div>
+  ${mcqHTML('s3q1','1','APT28 (also known as Fancy Bear) is attributed to which nation-state and intelligence service?',[
+    'China — Ministry of State Security (MSS)',
+    'Iran — Islamic Revolutionary Guard Corps (IRGC)',
+    'North Korea — Reconnaissance General Bureau (RGB)',
+    'Russia — GRU (military intelligence)',
+  ],3)}
+  ${mcqHTML('s3q2','2','APT41 is described as a "dual-mission" threat actor. What makes it unusual compared to other documented nation-state APT groups?',[
+    'APT41 conducts operations simultaneously on behalf of two separate intelligence agencies',
+    'APT41 targets both Windows and Linux systems with equal depth of capability across both platforms',
+    'APT41 conducts both state-sponsored espionage on behalf of China and financially motivated cybercrime for personal gain — a combination rare among documented APT groups',
+    'APT41 is active in both the Asia-Pacific and European regions simultaneously, making attribution harder',
+  ],2)}
+  ${discussHTML(
+    'Country Insights shows connections to Russia and Iran in your environment\'s traffic alongside a Malicious IP Traffic alert. Does the geographic signal alone confirm nation-state APT attribution?',
+    `<strong>Geography is context, not confirmation.</strong> Nation-state APTs — including APT28 and APT39 — routinely stage their C2 infrastructure in neutral third-country cloud providers or compromised hosts globally to obscure direct attribution. A connection geo-located to Russia or Iran may be a direct APT signal, or it may be a VPS rented from a provider in those countries by an attacker operating from anywhere.<br><br>Country Insights is most valuable when it appears in combination with other signals — particularly Malicious IP Traffic (where the IP is matched to documented threat actor infrastructure) and External Data Transfer (where exfiltration volume is elevated). The combination of multiple signals is what moves an investigation from "possible" to "probable" attribution. Geographic signals alone are insufficient — and acting on geography alone risks wasting investigation resources on legitimate cloud infrastructure.`
+  )}
+  ${navHTML('Section 4 of 6')}`;
+}
+
+// ===== SECTION 4: INCIDENT RESPONSE =====
+function sec4() {
+  return `<div class="section-header">
+    <div class="section-num">Section 5 of 6 &mdash; Incident Response</div>
+    <h2>Incident Response with Illumio Insights</h2>
+  </div>
+  <div class="data-card">
+    <div class="data-label">Threat Hunter Investigation Workflow — Module 5</div>
+    <strong>1. Insights Hub</strong> — Assess the current environment state across all Insights signals before drilling in<br>
+    <strong>2. Insights Agent Findings</strong> — Select a finding containing TA0008, TA0010, or TA0011<br>
+    <strong>3. Overview</strong> — Read the description in full, note the Report Attention Level and Tactics identified<br>
+    <strong>4. Findings</strong> — Drill into each Finding; Select View → Workloads in Flow → traffic map<br>
+    <strong>5. Recommended Actions</strong> — Review prioritised steps targeted at specific teams (SOC, IR, Network Security, IAM, App/DB)<br>
+    <strong>6. Analyst Verdict</strong> — Tag True Positive, False Positive, Benign Positive, or Undetermined; add investigation comment
+  </div>
+  ${mcqHTML('s4q1','1','In a Threat Hunter investigation, you open the Findings section and see one Finding rated Critical alongside one rated Low. What does this distribution indicate?',[
+    'There are two separate incidents occurring simultaneously — each rated independently of the other',
+    'The Critical rating covers the investigation as a whole; the Low rating is a calibration artifact from the Agent',
+    'The Agent has rated individual behaviors within the same investigation independently — Critical means immediate response is required; Low provides informational context',
+    'Critical ratings require board-level approval before action; Low ratings can be actioned by a SOC analyst alone',
+  ],2)}
+  ${mcqHTML('s4q2','2','When quarantining an AWS workload through Illumio Insights, which statement about the quarantine behavior is correct?',[
+    'Quarantine on AWS workloads requires the Illumio VEN to be installed on each instance before it can be applied',
+    'Quarantine writes rules directly to the AWS VPC Flow Log configuration to monitor and block traffic at inspection',
+    'If the quarantined workload shares its Security Group with other instances, those instances will also be affected by the quarantine rules',
+    'Azure enforces quarantine at the Security Group level; AWS enforces at the NIC-level Network Security Group',
+  ],2)}
+  ${discussHTML(
+    'A Recommended Actions report assigns Critical actions to the IAM team and Application/Database owners. Your CISO asks: does this confirm that credentials have been compromised?',
+    `<strong>It indicates the risk — it does not confirm the outcome.</strong> IAM actions in a Recommended Actions report indicate one of two things: either the Insights Agent detected activity consistent with credential access or privilege escalation (unusual authentication patterns, account enumeration), or it flagged credential rotation as a precautionary step given the workloads implicated.<br><br>Application/Database owner actions suggest that data in those workloads may have been accessed or staged — or that the owner needs to review data access logs as part of the investigation.<br><br>The correct answer to the CISO is: <em>"The actions are flagged as a precaution given the implicated workloads — we are investigating whether credentials were accessed."</em> Confirming credential compromise definitively requires endpoint forensics — EDR logs, authentication telemetry — which is the layer Illumio Insights cannot provide. The Recommended Actions get the right teams looking in the right places; confirming what they find is the teams' work.`
+  )}
+  ${navHTML('Section 5 of 6')}`;
+}
+
+// ===== SECTION 5: COURSE SYNTHESIS =====
+function sec5() {
+  const saItems = [
+    'I can identify which ATT&CK Tactic is in progress from an Illumio Insights alert — Lateral Movement, Exfiltration, or C2',
+    'I know how to navigate to Risky Services Traffic and interpret the Top 10 Workloads list for a lateral movement investigation',
+    'I understand the difference between True Positive, False Positive, Benign Positive, and Undetermined verdicts in Insights',
+    'I can explain what happens when quarantine is applied to an AWS workload versus a VEN-protected on-premises workload',
+    'I can name the four nation-state APT groups covered in this course and their country attributions',
+    'I can explain why T1071.004 (DNS) is a high-risk C2 channel that passes through most firewalls without inspection',
+    'I understand the ATT&CK coverage map — which Tactics Illumio Insights detects strongly and which require EDR, email security, or identity tooling',
+    'I can load a threat actor layer in the ATT&CK Navigator and identify overlapping Techniques between two groups',
+    'I understand the difference between IOCs and IOAs — and why behavioral detection matters for novel attacks',
+    'I can walk through the full Threat Hunter investigation workflow: Overview → Findings → Workloads in Flow → Recommended Actions → Verdict Tags',
+  ];
+  window._saItems = saItems;
+  return `<div class="section-header">
+    <div class="section-num">Section 6 of 6 &mdash; Course Synthesis</div>
+    <h2>Defensive Coverage &amp; Framework Fluency</h2>
+  </div>
+  <div class="data-card">
+    <div class="data-label">Illumio ATT&CK Coverage Map</div>
+    <table class="data-table">
+      <tr><th>ATT&CK Tactic</th><th>Illumio Visibility</th><th>Primary Insights View</th></tr>
+      <tr><td>TA0008 Lateral Movement</td><td class="highlight">Strong</td><td>Risky Services Traffic</td></tr>
+      <tr><td>TA0010 Exfiltration</td><td class="highlight">Strong</td><td>External Data Transfer + Known Public LLMs</td></tr>
+      <tr><td>TA0011 Command and Control</td><td class="highlight">Strong</td><td>Malicious IP Traffic + Firewall Insights</td></tr>
+      <tr><td>TA0007 Discovery</td><td>Partial</td><td>Resource Traffic (unusual scanning)</td></tr>
+      <tr><td>TA0009 Collection</td><td>Partial</td><td>External Data Transfer (internal staging)</td></tr>
+      <tr><td>TA0001–TA0006, TA0040</td><td>None / Partial</td><td>EDR, email security, identity tooling</td></tr>
+    </table>
+  </div>
+  ${mcqHTML('s5q1','1','Illumio Insights primarily operates at the IOA level rather than the IOC level. Which statement best explains the difference and its operational implication?',[
+    'IOC-based — it detects known malicious file hashes and IP addresses exclusively, requiring a prior incident to build the signature library',
+    'IOA-based — it detects behavioral anomalies such as unexpected lateral movement traffic, unusual outbound data volumes, and anomalous connection patterns, enabling detection of novel attacks not previously documented',
+    'Signature-based only — it requires a previous incident to have been reported and catalogued before detection is possible',
+    'Rule-based only — it fires alerts exclusively against a predefined static set of network flow rules',
+  ],1)}
+  ${mcqHTML('s5q2','2','The course describes one ATT&CK Tactic as the "universal chokepoint" — the stage where blast radius is determined and where Illumio\'s detection and containment capability is strongest. Which Tactic is this?',[
+    'TA0001 — Initial Access',
+    'TA0005 — Defense Evasion',
+    'TA0010 — Exfiltration',
+    'TA0008 — Lateral Movement',
+  ],3)}
+  <div class="self-assess-block">
+    <div class="q-num">Self-Assessment Bonus &mdash; up to 20 pts</div>
+    <h3>Course Knowledge Checklist</h3>
+    <div class="sa-hint">Check every item you can confidently do or explain right now. 7 or more earns 20 bonus points.</div>
+    ${saItems.map((item,i)=>`<div class="sa-item"><input type="checkbox" id="sa${i}"><label for="sa${i}">${item}</label></div>`).join('')}
+    <button class="submit-btn" style="margin-top:14px;" id="sa-submit-btn" onclick="submitSA()">Submit Readiness Check</button>
+    <div class="feedback-box" id="sa-feedback"></div>
+  </div>
+  ${navHTML('Section 6 of 6')}`;
+}
+
+// ===== MULTI-SELECT =====
+function submitMS() {
+  if(msSubmitted) return;
+  msSubmitted = true;
+  const correct = new Set([0,1,2,3]);
+  const wrong = new Set([4,5]);
+  let allRight=true, anyWrong=false, correctCount=0;
+  for(let i=0;i<6;i++) {
+    const cb = document.getElementById('ms'+i);
+    const wrap = cb.closest('.checkbox-option');
+    cb.disabled = true;
+    if(correct.has(i)&&cb.checked){wrap.classList.add('cb-correct');correctCount++;}
+    else if(correct.has(i)&&!cb.checked){wrap.classList.add('cb-wrong');allRight=false;}
+    else if(wrong.has(i)&&cb.checked){wrap.classList.add('cb-wrong');anyWrong=true;}
+    else if(wrong.has(i)&&!cb.checked){wrap.classList.add('cb-correct');}
+  }
+  document.getElementById('ms-submit-btn').disabled = true;
+  const fb = document.getElementById('ms-feedback');
+  let pts=0;
+  if(allRight&&!anyWrong){pts=20;fb.className='feedback-box show correct';fb.innerHTML='<strong>Perfect — 20 pts.</strong> All four correct facts identified. T1021 belongs to TA0008 Lateral Movement (not Discovery). VNC uses port 5900, not 3389. The four correct items are all documented on the MITRE ATT&CK T1021 page.';}
+  else if(correctCount>=3&&!anyWrong){pts=10;fb.className='feedback-box show neutral';fb.innerHTML='<strong>Partial — 10 pts.</strong> Good foundation. Check the two incorrect statements: VNC (T1021.005) uses port 5900 — not 3389. T1021 belongs to TA0008 Lateral Movement, not TA0007 Discovery.';}
+  else{fb.className='feedback-box show wrong';fb.innerHTML='<strong>Needs review — 0 pts.</strong> The four correct statements are documented facts from the T1021 MITRE page. VNC uses port 5900; T1021 is classified under TA0008 Lateral Movement. Review Module 2 for the full Sub-Technique table.';}
+  if(pts>0) addScore(pts,'ms');
+  fb.classList.add('show');
+  checkProgress();
+}
+
+// ===== MATCHING 1 =====
+let m1sel = null, m1assign = {};
+function selectM1(i) {
+  if(matching1.submitted) return;
+  document.querySelectorAll('[id^="m1t-"]').forEach(el=>el.classList.remove('selected'));
+  if(m1sel===i){m1sel=null;return;}
+  m1sel=i;
+  document.getElementById('m1t-'+i).classList.add('selected');
+}
+function assignM1(si) {
+  if(matching1.submitted||m1sel===null) return;
+  for(let k in m1assign){if(m1assign[k]===m1sel){delete m1assign[k];document.getElementById('m1s-'+k).innerHTML=`<span class="slot-def">${window._m1slots[k]}</span>`;document.getElementById('m1s-'+k).classList.remove('filled');}}
+  if(m1assign[si]!==undefined){document.getElementById('m1t-'+m1assign[si]).classList.remove('used');}
+  m1assign[si]=m1sel;
+  document.getElementById('m1s-'+si).innerHTML=`<span class="slot-def" style="color:var(--muted);font-size:10px;">${window._m1slots[si]}</span><span style="color:var(--text);font-size:12px;">${window._m1terms[m1sel]}</span>`;
+  document.getElementById('m1s-'+si).classList.add('filled');
+  document.getElementById('m1t-'+m1sel).classList.add('used');
+  document.getElementById('m1t-'+m1sel).classList.remove('selected');
+  m1sel=null;
+}
+function submitM1() {
+  if(matching1.submitted) return;
+  matching1.submitted=true;
+  document.getElementById('m1-submit-btn').disabled=true;
+  let correct=0;
+  for(let s=0;s<4;s++) {
+    const assigned=m1assign[s];
+    const correctChip=window._m1correctChip[s];
+    const slot=document.getElementById('m1s-'+s);
+    if(assigned===correctChip){correct++;slot.classList.add('slot-correct');if(assigned!==undefined)document.getElementById('m1t-'+assigned).classList.add('matched-correct');}
+    else{slot.classList.add('slot-wrong');if(assigned!==undefined)document.getElementById('m1t-'+assigned).classList.add('matched-wrong');}
+  }
+  const fb=document.getElementById('m1-feedback');
+  fb.classList.add('show');
+  let pts=0;
+  if(correct===4){pts=20;fb.className='feedback-box show correct';fb.innerHTML=`<strong>Perfect — 20 pts.</strong> All four Tactic IDs correctly matched. TA0001 Initial Access, TA0008 Lateral Movement, TA0010 Exfiltration, and TA0011 Command and Control are the four Tactics most directly surfaced by Illumio Insights.`;}
+  else if(correct>=3){pts=10;fb.className='feedback-box show neutral';fb.innerHTML=`<strong>Partial — 10 pts.</strong> ${correct}/4 correct. Key distinction: TA0010 is Exfiltration (data leaving); TA0011 is Command and Control (attacker communication channel). Both are network-layer Tactics that Illumio Insights detects directly.`;}
+  else{fb.className='feedback-box show wrong';fb.innerHTML=`<strong>${correct}/4 correct — 0 pts.</strong> Correct mappings: TA0001 → Getting the first foothold; TA0008 → Moving host to host; TA0010 → Sending data out; TA0011 → Maintaining communication. Review Module 1 for the full 14-Tactic table.`;}
+  if(pts>0) addScore(pts,'m1');
+  checkProgress();
+}
+
+// ===== MATCHING 2 =====
+let m2sel = null, m2assign = {};
+function selectM2(i) {
+  if(matching2.submitted) return;
+  document.querySelectorAll('[id^="m2t-"]').forEach(el=>el.classList.remove('selected'));
+  if(m2sel===i){m2sel=null;return;}
+  m2sel=i;
+  document.getElementById('m2t-'+i).classList.add('selected');
+}
+function assignM2(si) {
+  if(matching2.submitted||m2sel===null) return;
+  for(let k in m2assign){if(m2assign[k]===m2sel){delete m2assign[k];document.getElementById('m2s-'+k).innerHTML=`<span class="slot-def">${window._m2slots[k]}</span>`;document.getElementById('m2s-'+k).classList.remove('filled');}}
+  if(m2assign[si]!==undefined){document.getElementById('m2t-'+m2assign[si]).classList.remove('used');}
+  m2assign[si]=m2sel;
+  document.getElementById('m2s-'+si).innerHTML=`<span class="slot-def" style="color:var(--muted);font-size:10px;">${window._m2slots[si]}</span><span style="color:var(--text);font-size:12px;">${window._m2terms[m2sel]}</span>`;
+  document.getElementById('m2s-'+si).classList.add('filled');
+  document.getElementById('m2t-'+m2sel).classList.add('used');
+  document.getElementById('m2t-'+m2sel).classList.remove('selected');
+  m2sel=null;
+}
+function submitM2() {
+  if(matching2.submitted) return;
+  matching2.submitted=true;
+  document.getElementById('m2-submit-btn').disabled=true;
+  let correct=0;
+  for(let s=0;s<4;s++) {
+    const assigned=m2assign[s];
+    const correctTerm=window._m2correctTerm[s];
+    const slot=document.getElementById('m2s-'+s);
+    if(assigned===correctTerm){correct++;slot.classList.add('slot-correct');if(assigned!==undefined)document.getElementById('m2t-'+assigned).classList.add('matched-correct');}
+    else{slot.classList.add('slot-wrong');if(assigned!==undefined)document.getElementById('m2t-'+assigned).classList.add('matched-wrong');}
+  }
+  const fb=document.getElementById('m2-feedback');
+  fb.classList.add('show');
+  let pts=0;
+  if(correct===4){pts=20;fb.className='feedback-box show correct';fb.innerHTML=`<strong>Perfect — 20 pts.</strong> All four Insights views correctly matched. Risky Services Traffic → TA0008 (Lateral Movement) · External Data Transfer → TA0010 (Exfiltration) · Malicious IP Traffic → TA0011 (C2) · Firewall Insights → T1008 (Fallback Channels).`;}
+  else if(correct>=3){pts=10;fb.className='feedback-box show neutral';fb.innerHTML=`<strong>Partial — 10 pts.</strong> ${correct}/4 correct. Key: Malicious IP Traffic surfaces C2 (TA0011) signals specifically — flows to known-bad IPs. External Data Transfer surfaces Exfiltration (TA0010) via outbound volume anomalies. Firewall Insights is the only view requiring a third-party firewall integration.`;}
+  else{fb.className='feedback-box show wrong';fb.innerHTML=`<strong>${correct}/4 correct — 0 pts.</strong> Correct: Risky Services Traffic → TA0008 Lateral Movement · External Data Transfer → TA0010 Exfiltration · Malicious IP Traffic → TA0011 C2 · Firewall Insights → T1008 Fallback Channels. Review Module 3 for the full mapping.`;}
+  if(pts>0) addScore(pts,'m2');
+  checkProgress();
+}
+
+// ===== SELF ASSESS =====
+function submitSA() {
+  if(saSubmitted) return;
+  saSubmitted=true;
+  document.getElementById('sa-submit-btn').disabled=true;
+  let checked=0;
+  for(let i=0;i<10;i++){if(document.getElementById('sa'+i).checked)checked++;document.getElementById('sa'+i).disabled=true;}
+  const fb=document.getElementById('sa-feedback');
+  fb.classList.add('show');
+  let pts=0;
+  if(checked>=7){pts=20;fb.className='feedback-box show correct';fb.innerHTML=`<strong>+20 pts bonus.</strong> ${checked}/10 items confirmed — strong course fluency. Any gaps in the remaining items are your roadmap for review.`;}
+  else if(checked>=5){pts=10;fb.className='feedback-box show neutral';fb.innerHTML=`<strong>+10 pts.</strong> ${checked}/10 items confirmed. Focus first on the Insights view-to-Tactic mappings (items 1–2) and the quarantine and IOA concepts (items 4 and 9) — these are the most operationally important for live incident response.`;}
+  else{fb.className='feedback-box show wrong';fb.innerHTML=`<strong>0 pts — ${checked}/10 items.</strong> ${10-checked} knowledge gaps identified. The most critical items are the three Insights views (item 1–2), the investigation workflow (item 10), and the ATT&CK coverage map (item 7). Review Modules 2, 3, and 5 to close these gaps before using Insights in a live environment.`;}
+  if(pts>0) addScore(pts,'sa');
+  checkProgress();
+}
+
+// ===== RESULTS =====
+function showResults() {
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-results').classList.add('active');
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('br-mcq').textContent = (scoreLog.mcq||0)+' / 120';
+  document.getElementById('br-m1').textContent = (scoreLog.m1||0)+' / 20';
+  document.getElementById('br-ms').textContent = (scoreLog.ms||0)+' / 20';
+  document.getElementById('br-m2').textContent = (scoreLog.m2||0)+' / 20';
+  document.getElementById('br-sa').textContent = (scoreLog.sa||0)+' / 20';
+  let band,title,sub,cls;
+  if(score>=160){band='ATT&CK Analyst';title='ATT&CK Analyst';sub='You speak the framework fluently and can map live signals to adversary TTPs.';cls='grade-a';}
+  else if(score>=120){band='Threat Hunter';title='Threat Hunter';sub='Strong foundation — deepen your incident response workflow and technique-level detail.';cls='grade-b';}
+  else if(score>=80){band='Security Analyst';title='Developing Analyst';sub='Good instincts — revisit the ATT&CK Tactic mappings and Insights view correlations.';cls='grade-c';}
+  else{band='Needs Review';title='Needs Review';sub='Return to the course content — the framework connections and Insights mappings are the foundation of everything.';cls='grade-d';}
+  const badge=document.getElementById('grade-badge');
+  badge.textContent=band;badge.className='grade-badge '+cls;
+  document.getElementById('results-title').textContent=title;
+  document.getElementById('results-sub').textContent=sub;
+}
+
+function restart() {
+  score=0;currentSection=0;
+  sectionAttempted=[false,false,false,false,false,false];
+  scoreLog={mcq:0,m1:0,ms:0,m2:0,sa:0};
+  mcqAnswered={};msSubmitted=false;
+  matching1={submitted:false};matching2={submitted:false};
+  m1sel=null;m1assign={};m2sel=null;m2assign={};
+  saSubmitted=false;
+  document.getElementById('sidebar-score').textContent='0';
+  document.getElementById('progress-fill').style.width='0%';
+  for(let i=0;i<6;i++){document.getElementById('check-'+i).textContent='';document.getElementById('track-'+i).classList.remove('completed','active');}
+  document.getElementById('screen-results').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  goToSection(0);
+}
+</script>
+</body>
+</html>
